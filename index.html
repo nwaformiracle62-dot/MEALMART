@@ -1,0 +1,815 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Order freshly cooked Nigerian meals and market groceries from MEALMART.">
+    <title>MEALMART | Nigerian Meals & Groceries</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased selection:bg-brand-500 selection:text-white">
+
+    <!-- Notification Toast Container -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- Header / Navigation -->
+    <header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-slate-200 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <!-- Brand Logo -->
+            <a href="#" class="flex items-center gap-2 group">
+                <div class="w-11 h-11 bg-brand-600 rounded-xl flex items-center justify-center text-white shadow-md shadow-brand-500/20 group-hover:scale-105 transition">
+                    <i class="fa-solid fa-utensils text-xl"></i>
+                </div>
+                <div>
+                    <span class="text-2xl font-black tracking-tight text-slate-900">Meal<span class="text-brand-600">Mart</span></span>
+                    <span class="block text-[10px] uppercase tracking-widest font-semibold text-slate-400">Meals & Groceries</span>
+                </div>
+            </a>
+
+            <!-- Search Bar (Desktop) -->
+            <div class="hidden md:flex items-center flex-1 max-w-md mx-8">
+                <div class="relative w-full">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </span>
+                    <input type="search" id="search-input" placeholder="Search jollof, suya, fresh tomatoes..." 
+                        class="w-full pl-11 pr-4 py-2.5 bg-slate-100 border border-transparent rounded-full text-sm focus:bg-white focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 transition">
+                </div>
+            </div>
+
+            <!-- Nav Actions -->
+            <div class="flex items-center gap-4">
+                <div id="account-links" class="hidden sm:flex items-center gap-3 text-sm font-semibold">
+                    <a href="login.html" class="text-slate-600 hover:text-brand-600">Sign in</a>
+                    <a href="signup.html" class="px-3 py-2 rounded-xl bg-brand-50 text-brand-700 hover:bg-brand-100">Create account</a>
+                </div>
+                <div id="account-menu" class="hidden items-center gap-3 text-sm font-semibold">
+                    <span id="account-name" class="max-w-28 truncate text-slate-600"></span>
+                    <a href="admin.html" id="admin-link" class="hidden text-brand-700 hover:text-brand-600">Admin</a>
+                    <button id="sign-out-button" type="button" class="text-slate-600 hover:text-brand-600">Sign out</button>
+                </div>
+                <!-- Cart Trigger -->
+                <button onclick="toggleCart()" aria-label="Open shopping cart" class="relative p-2.5 rounded-full bg-slate-100 hover:bg-brand-50 hover:text-brand-600 transition flex items-center gap-2 px-4">
+                    <i class="fa-solid fa-bag-shopping text-lg"></i>
+                    <span class="hidden sm:inline font-semibold text-sm">Cart</span>
+                    <span id="cart-badge" class="absolute -top-1 -right-1 bg-brand-600 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold shadow">0</span>
+                </button>
+
+                <!-- Mobile Menu Button -->
+                <button onclick="toggleMobileMenu()" aria-label="Show account links" class="md:hidden p-2.5 rounded-lg bg-slate-100 hover:bg-slate-200 transition">
+                    <i class="fa-solid fa-bars text-lg"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Search Bar Bar -->
+        <div class="md:hidden px-4 pb-3">
+            <div class="relative w-full">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </span>
+                <input type="search" id="mobile-search-input" placeholder="Search jollof, suya or groceries..." 
+                    class="w-full pl-11 pr-4 py-2 bg-slate-100 border border-transparent rounded-full text-sm focus:bg-white focus:border-brand-500 focus:outline-none">
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="relative bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white overflow-hidden py-16 lg:py-24">
+        <!-- Decorative Background Elements -->
+        <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#22c55e_1px,transparent_1px)] [background-size:16px_16px]"></div>
+        
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 flex flex-col lg:flex-row items-center gap-12">
+            <div class="flex-1 text-center lg:text-left">
+                <span class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-500/10 text-brand-400 border border-brand-500/20 text-xs font-bold uppercase tracking-wider mb-6">
+                    <i class="fa-solid fa-bolt"></i> Fresh Nigerian meals and groceries
+                </span>
+                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight mb-6">
+                    Freshly Cooked Food & Raw Groceries <span class="text-brand-500 underline decoration-brand-500/30">All in One Place</span>
+                </h1>
+                <p class="text-lg text-slate-300 mb-8 max-w-xl mx-auto lg:mx-0">
+                    From smoky party jollof and suya to fresh market groceries, find the good stuff in one place.
+                </p>
+                <div class="flex flex-wrap justify-center lg:justify-start gap-4">
+                    <button onclick="filterCatalog('all')" class="px-8 py-4 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl shadow-lg shadow-brand-600/30 transition transform hover:-translate-y-0.5">
+                        Order Now <i class="fa-solid fa-arrow-right ml-2"></i>
+                    </button>
+                    <button onclick="filterCatalog('cooked')" class="px-8 py-4 bg-slate-800 hover:bg-slate-700 text-white font-semibold rounded-xl border border-slate-700 transition">
+                        Explore Cooked Meals
+                    </button>
+                </div>
+            </div>
+            
+            <div class="flex-1 w-full max-w-lg lg:max-w-none">
+                <div class="relative rounded-3xl overflow-hidden shadow-2xl border border-slate-700 bg-slate-800 p-2">
+                    <img src="https://mbfdvwcddkbpwuuswzeo.supabase.co/storage/v1/object/public/images/articles/o4m6k2ypli9.jpg" 
+                         alt="Delicious food spread" 
+                         onerror="this.src='https://placehold.co/600x400/1e293b/ffffff?text=MealMart+Fresh'"
+                         class="w-full h-80 sm:h-96 object-cover rounded-2xl">
+                    <div class="absolute bottom-6 left-6 right-6 bg-slate-900/90 backdrop-blur p-4 rounded-xl border border-slate-700/50 flex items-center gap-4">
+                        <div class="w-12 h-12 bg-brand-500 rounded-xl flex items-center justify-center text-white shrink-0 shadow">
+                            <i class="fa-solid fa-basket-shopping text-xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-sm text-white">Combo & Fresh Pack Guarantee</h4>
+                            <p class="text-xs text-slate-400">100% hygienic, quality assured, & temperature controlled packaging.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Catalog Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <!-- Section Header & Filter Tabs -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
+            <div>
+                <h2 class="text-3xl font-black text-slate-900 tracking-tight">Our Catalog</h2>
+                <p class="text-slate-500 text-sm mt-1">Switch between ready-to-eat hot meals and fresh grocery items.</p>
+            </div>
+
+            <!-- Tabs -->
+            <div class="flex items-center bg-slate-200/80 p-1.5 rounded-2xl self-start">
+                <button onclick="filterCatalog('all')" id="tab-all" class="tab-btn px-6 py-2.5 rounded-xl font-bold text-sm transition bg-white text-slate-900 shadow-sm">
+                    All Items
+                </button>
+                <button onclick="filterCatalog('cooked')" id="tab-cooked" class="tab-btn px-6 py-2.5 rounded-xl font-bold text-sm transition text-slate-600 hover:text-slate-900">
+                    <i class="fa-solid fa-fire mr-1.5 text-orange-500"></i> Cooked Food
+                </button>
+                <button onclick="filterCatalog('grocery')" id="tab-grocery" class="tab-btn px-6 py-2.5 rounded-xl font-bold text-sm transition text-slate-600 hover:text-slate-900">
+                    <i class="fa-solid fa-carrot mr-1.5 text-brand-600"></i> Food Items / Groceries
+                </button>
+            </div>
+        </div>
+
+        <!-- Category Pills Filter -->
+        <div id="category-pills" class="flex items-center gap-2 overflow-x-auto pb-4 mb-8 no-scrollbar">
+            <!-- Dynamically populated or static filter buttons -->
+        </div>
+
+        <!-- Product Grid -->
+        <p id="catalog-status" class="mb-5 text-sm text-slate-500" role="status" aria-live="polite">Loading products…</p>
+        <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6" aria-live="polite">
+            <!-- Products are loaded from the MEALMART Firebase project. -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="empty-state" class="hidden text-center py-20">
+            <div class="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-400 text-3xl">
+                <i class="fa-solid fa-box-open"></i>
+            </div>
+            <h3 class="text-lg font-bold text-slate-700">No products found</h3>
+            <p class="text-slate-500 text-sm mt-1">Try searching for something else or switch categories.</p>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 pt-16 pb-12 border-t border-slate-800 mt-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
+            <div>
+                <div class="flex items-center gap-2 mb-4">
+                    <div class="w-9 h-9 bg-brand-600 rounded-xl flex items-center justify-center text-white">
+                        <i class="fa-solid fa-utensils"></i>
+                    </div>
+                    <span class="text-xl font-black text-white">Meal<span class="text-brand-500">Mart</span></span>
+                </div>
+                <p class="text-sm text-slate-400 leading-relaxed">
+                    Your premier destination for delicious restaurant-quality cooked meals and fresh organic grocery items delivered instantly.
+                </p>
+            </div>
+            <div>
+                <h4 class="text-white font-bold text-sm uppercase tracking-wider mb-4">Quick Links</h4>
+                <ul class="space-y-2.5 text-sm">
+                    <li><a href="#" onclick="filterCatalog('all')" class="hover:text-brand-400 transition">Browse Catalog</a></li>
+                    <li><a href="#" onclick="filterCatalog('cooked')" class="hover:text-brand-400 transition">Cooked Food Menu</a></li>
+                    <li><a href="#" onclick="filterCatalog('grocery')" class="hover:text-brand-400 transition">Fresh Groceries</a></li>
+                    <li><a href="#" onclick="toggleCart()" class="hover:text-brand-400 transition">View Cart</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-white font-bold text-sm uppercase tracking-wider mb-4">Customer Support</h4>
+                <ul class="space-y-2.5 text-sm">
+                    <li><a href="#" class="hover:text-brand-400 transition">Help Center & FAQ</a></li>
+                    <li><a href="signup.html" class="hover:text-brand-400 transition">Create an account</a></li>
+                    <li><a href="#" class="hover:text-brand-400 transition">Delivery Information</a></li>
+                    <li><a href="#" class="hover:text-brand-400 transition">Refund Policy</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-white font-bold text-sm uppercase tracking-wider mb-4">Stay Updated</h4>
+                <p class="text-sm mb-4">Subscribe for weekly discount codes and new menu alerts.</p>
+                <form onsubmit="handleNewsletter(event)" class="flex gap-2">
+                    <input type="email" placeholder="Your email address" required class="bg-slate-800 border border-slate-700 px-4 py-2.5 rounded-xl text-sm text-white focus:outline-none focus:border-brand-500 flex-1">
+                    <button type="submit" class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2.5 rounded-xl text-sm font-bold transition">Join</button>
+                </form>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 border-t border-slate-800/80 text-center text-xs text-slate-500">
+            &copy; 2026 MealMart Inc. All rights reserved. Made with fresh ingredients & code.
+        </div>
+    </footer>
+
+    <!-- Slide-over Cart Drawer -->
+    <div id="cart-drawer" class="fixed inset-0 z-50 overflow-hidden hidden">
+        <!-- Backdrop -->
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" onclick="toggleCart()"></div>
+
+        <div class="absolute inset-y-0 right-0 max-w-full flex pl-10">
+            <div class="w-screen max-w-md bg-white shadow-2xl flex flex-col">
+                <!-- Drawer Header -->
+                <div class="p-6 border-b border-slate-100 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-brand-50 rounded-xl flex items-center justify-center text-brand-600 font-bold">
+                            <i class="fa-solid fa-bag-shopping"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-black text-lg text-slate-900">Your Shopping Cart</h3>
+                            <p class="text-xs text-slate-500" id="cart-item-count-label">0 items selected</p>
+                        </div>
+                    </div>
+                    <button onclick="toggleCart()" class="p-2 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition">
+                        <i class="fa-solid fa-xmark text-lg"></i>
+                    </button>
+                </div>
+
+                <!-- Cart Items Body -->
+                <div id="cart-items-container" class="flex-1 overflow-y-auto p-6 space-y-4 divide-y divide-slate-100">
+                    <!-- Cart items injected dynamically -->
+                </div>
+
+                <!-- Cart Empty State -->
+                <div id="cart-empty" class="flex-1 flex flex-col items-center justify-center p-6 text-center">
+                    <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 text-2xl mb-4">
+                        <i class="fa-solid fa-basket-shopping"></i>
+                    </div>
+                    <h4 class="font-bold text-slate-700">Your cart is empty</h4>
+                    <p class="text-xs text-slate-500 mt-1 mb-6">Looks like you haven't added any cooked meals or groceries yet.</p>
+                    <button onclick="toggleCart()" class="px-6 py-2.5 bg-brand-600 text-white font-semibold rounded-xl text-sm shadow hover:bg-brand-700 transition">
+                        Start Shopping
+                    </button>
+                </div>
+
+                <!-- Drawer Footer / Checkout Area -->
+                <div id="cart-footer" class="p-6 border-t border-slate-100 bg-slate-50 hidden">
+                    <div class="space-y-2 mb-4">
+                        <div class="flex justify-between text-sm text-slate-600">
+                            <span>Subtotal</span>
+                            <span id="cart-subtotal" class="font-semibold text-slate-900">₦0</span>
+                        </div>
+                        <div class="flex justify-between text-sm text-slate-600">
+                            <span>Estimated Delivery</span>
+                            <span class="font-semibold text-emerald-600" id="cart-delivery">₦2,000</span>
+                        </div>
+                        <div class="flex justify-between text-base font-black text-slate-900 pt-2 border-t border-slate-200">
+                            <span>Total</span>
+                            <span id="cart-total" class="text-brand-600">₦0</span>
+                        </div>
+                    </div>
+                    <button onclick="openCheckoutModal()" class="w-full py-3.5 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl shadow-lg shadow-brand-600/30 transition flex items-center justify-center gap-2">
+                        Proceed to Checkout <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Checkout Modal -->
+    <div id="checkout-modal" class="fixed inset-0 z-50 overflow-y-auto hidden">
+        <div class="min-h-screen px-4 text-center flex items-center justify-center">
+            <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" onclick="closeCheckoutModal()"></div>
+
+            <div class="inline-block w-full max-w-lg p-8 my-8 text-left align-middle transition-all transform bg-white shadow-2xl rounded-3xl relative z-10">
+                <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-6">
+                    <div>
+                        <h3 class="text-xl font-black text-slate-900">Checkout & Delivery</h3>
+                        <p class="text-xs text-slate-500">Provide your delivery details to complete the order.</p>
+                    </div>
+                    <button onclick="closeCheckoutModal()" class="p-2 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition">
+                        <i class="fa-solid fa-xmark text-lg"></i>
+                    </button>
+                </div>
+
+                <form id="checkout-form" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Full Name</label>
+                        <input type="text" id="cust-name" autocomplete="name" maxlength="80" required placeholder="Your full name" 
+                            class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:border-brand-500 focus:outline-none">
+                    </div>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Phone Number</label>
+                            <input type="tel" id="cust-phone" autocomplete="tel" maxlength="24" required placeholder="+234 801 234 5678" 
+                                class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:border-brand-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Delivery City</label>
+                            <select id="cust-city" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:border-brand-500 focus:outline-none">
+                                <option>Lagos</option>
+                                <option>Abuja</option>
+                                <option>Port Harcourt</option>
+                                <option>Ibadan</option>
+                                <option>Kano</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Delivery Street Address</label>
+                        <textarea id="cust-address" autocomplete="street-address" maxlength="240" required rows="2" placeholder="Street address, area and delivery instructions" 
+                            class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:border-brand-500 focus:outline-none"></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Payment Method</label>
+                        <div class="grid grid-cols-1 gap-3">
+                            <label class="border border-brand-500 bg-brand-50/50 p-3 rounded-xl flex flex-col items-center justify-center cursor-pointer text-xs font-bold text-slate-800">
+                                <input type="radio" name="payment" checked class="mb-1 accent-brand-600"> Cash on Delivery
+                            </label>
+                        </div>
+                        <p class="mt-2 text-xs text-slate-500">Online card payments are not enabled yet.</p>
+                    </div>
+
+                    <p id="checkout-error" class="text-sm text-red-700" role="alert" aria-live="polite"></p>
+                    <div class="pt-4">
+                        <button type="submit" class="w-full py-4 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl shadow-lg shadow-brand-600/30 transition flex items-center justify-center gap-2">
+                            Place Order Now <i class="fa-solid fa-check"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Success Modal -->
+    <div id="success-modal" class="fixed inset-0 z-50 overflow-y-auto hidden">
+        <div class="min-h-screen px-4 text-center flex items-center justify-center">
+            <div class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm"></div>
+            <div class="inline-block w-full max-w-md p-8 text-center bg-white shadow-2xl rounded-3xl relative z-10">
+                <div class="w-20 h-20 bg-brand-100 text-brand-600 rounded-full flex items-center justify-center mx-auto mb-6 text-3xl shadow-inner">
+                    <i class="fa-solid fa-check"></i>
+                </div>
+                <h3 class="text-2xl font-black text-slate-900 mb-2">Order Placed Successfully!</h3>
+                <p id="order-summary" class="text-sm text-slate-500 mb-6">
+                Thank you for shopping with <span class="font-bold text-slate-800">MealMart</span>. Your order confirmation will appear here.
+                </p>
+                <button onclick="closeSuccessModal()" class="w-full py-3.5 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl shadow transition">
+                    Back to Store
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application JavaScript -->
+    <script type="application/json" id="legacy-demo-script">
+        // Product Catalog Data Store
+        const products = [
+            // Cooked Food
+            {
+                id: 1,
+                name: "Authentic Nigerian Jollof Rice & Chicken",
+                category: "cooked",
+                subCategory: "Hot Meals",
+                price: 14.99,
+                rating: 4.8,
+                reviews: 124,
+                image: "https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?q=80&w=600&auto=format&fit=crop",
+                badge: "Bestseller",
+                description: "Smoky party jollof rice served with tender fried chicken, fried plantains, and pepper sauce."
+            },
+            {
+                id: 2,
+                name: "Crispy Bacon & Cheddar Burger Combo",
+                category: "cooked",
+                subCategory: "Fast Food",
+                price: 12.50,
+                rating: 4.6,
+                reviews: 98,
+                image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=600&auto=format&fit=crop",
+                badge: "Hot",
+                description: "Juicy beef patty with crispy smoked bacon, melted cheddar, lettuce, tomatoes, and fries."
+            },
+            {
+                id: 3,
+                name: "Wood-Fired Margherita Pizza",
+                category: "cooked",
+                subCategory: "Italian",
+                price: 16.00,
+                rating: 4.9,
+                reviews: 210,
+                image: "https://images.unsplash.com/photo-1604382355076-af4b0eb60143?q=80&w=600&auto=format&fit=crop",
+                badge: "Chef's Choice",
+                description: "Fresh mozzarella, sweet Italian tomato sauce, fresh basil leaves on artisan sourdough crust."
+            },
+            {
+                id: 4,
+                name: "Creamy Alfredo Chicken Pasta",
+                category: "cooked",
+                subCategory: "Italian",
+                price: 15.50,
+                rating: 4.7,
+                reviews: 82,
+                image: "https://images.unsplash.com/photo-1621996346565-e3d5d6281298?q=80&w=600&auto=format&fit=crop",
+                badge: null,
+                description: "Fettuccine pasta tossed in rich garlic parmesan cream sauce with grilled chicken breast."
+            },
+            {
+                id: 5,
+                name: "Teriyaki Salmon Rice Bowl",
+                category: "cooked",
+                subCategory: "Asian",
+                price: 18.99,
+                rating: 4.9,
+                reviews: 140,
+                image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=600&auto=format&fit=crop",
+                badge: "Healthy",
+                description: "Glazed grilled salmon fillet over steamed jasmine rice, edamame, avocado, and sesame dressing."
+            },
+
+            // Grocery / Food Items
+            {
+                id: 6,
+                name: "Organic Vine-Ripe Red Tomatoes (1kg)",
+                category: "grocery",
+                subCategory: "Fresh Produce",
+                price: 4.99,
+                rating: 4.8,
+                reviews: 65,
+                image: "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?q=80&w=600&auto=format&fit=crop",
+                badge: "Organic",
+                description: "Locally farmed juicy red tomatoes, freshly harvested and packed for rich flavor."
+            },
+            {
+                id: 7,
+                name: "Farm Fresh Grade-A Brown Eggs (12 Pack)",
+                category: "grocery",
+                subCategory: "Dairy & Eggs",
+                price: 5.49,
+                rating: 4.9,
+                reviews: 112,
+                image: "https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?q=80&w=600&auto=format&fit=crop",
+                badge: "Fresh",
+                description: "Cage-free pasture raised large brown eggs rich in protein and vitamins."
+            },
+            {
+                id: 8,
+                name: "Whole Grain Artisan Bread Loaf",
+                category: "grocery",
+                subCategory: "Bakery",
+                price: 3.99,
+                rating: 4.7,
+                reviews: 54,
+                image: "https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=600&auto=format&fit=crop",
+                badge: null,
+                description: "Freshly baked whole grain sourdough bread loaf with a crispy crust and soft crumb."
+            },
+            {
+                id: 9,
+                name: "Pure Natural Wild Flower Honey (500g)",
+                category: "grocery",
+                subCategory: "Pantry",
+                price: 8.99,
+                rating: 4.9,
+                reviews: 78,
+                image: "https://images.unsplash.com/photo-1587049352847-4a222e784d38?q=80&w=600&auto=format&fit=crop",
+                badge: "100% Pure",
+                description: "Unfiltered raw wildflower honey collected from certified sustainable apiaries."
+            },
+            {
+                id: 10,
+                name: "Premium Long Grain Basmati Rice (5kg)",
+                category: "grocery",
+                subCategory: "Grains",
+                price: 13.99,
+                rating: 4.8,
+                reviews: 156,
+                image: "https://images.unsplash.com/photo-1586201375761-83865001e31c?q=80&w=600&auto=format&fit=crop",
+                badge: "Best Value",
+                description: "Aromatic extra-long grain aged basmati rice ideal for pilafs, biryani, and daily meals."
+            }
+        ];
+
+        // State Management
+        let cart = [];
+        let currentFilter = 'all';
+        let currentSubCategory = 'All';
+
+        // Initialize application on window load
+        window.onload = function() {
+            renderProducts();
+            setupEventListeners();
+            updateCartUI();
+        };
+
+        // Setup Search and Event Listeners
+        function setupEventListeners() {
+            const searchInput = document.getElementById('search-input');
+            const mobileSearchInput = document.getElementById('mobile-search-input');
+
+            const handleSearch = (e) => {
+                const query = e.target.value.toLowerCase();
+                const filtered = products.filter(p => 
+                    p.name.toLowerCase().includes(query) || 
+                    p.description.toLowerCase().includes(query) ||
+                    p.subCategory.toLowerCase().includes(query)
+                );
+                renderProductGrid(filtered);
+            };
+
+            if (searchInput) searchInput.addEventListener('input', handleSearch);
+            if (mobileSearchInput) mobileSearchInput.addEventListener('input', handleSearch);
+        }
+
+        // Filter Catalog by Main Tab
+        function filterCatalog(type) {
+            currentFilter = type;
+            currentSubCategory = 'All';
+
+            // Update Tab active states
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.className = "tab-btn px-6 py-2.5 rounded-xl font-bold text-sm transition text-slate-600 hover:text-slate-900";
+            });
+
+            if (type === 'all') {
+                document.getElementById('tab-all').className = "tab-btn px-6 py-2.5 rounded-xl font-bold text-sm transition bg-white text-slate-900 shadow-sm";
+            } else if (type === 'cooked') {
+                document.getElementById('tab-cooked').className = "tab-btn px-6 py-2.5 rounded-xl font-bold text-sm transition bg-white text-slate-900 shadow-sm";
+            } else if (type === 'grocery') {
+                document.getElementById('tab-grocery').className = "tab-btn px-6 py-2.5 rounded-xl font-bold text-sm transition bg-white text-slate-900 shadow-sm";
+            }
+
+            renderProducts();
+        }
+
+        // Render Sub-Category Pills & Products
+        function renderProducts() {
+            const pillsContainer = document.getElementById('category-pills');
+            
+            // Determine subcategories based on filter
+            let subCategories = ['All'];
+            if (currentFilter === 'cooked') {
+                subCategories = ['All', 'Hot Meals', 'Fast Food', 'Italian', 'Asian'];
+            } else if (currentFilter === 'grocery') {
+                subCategories = ['All', 'Fresh Produce', 'Dairy & Eggs', 'Bakery', 'Pantry', 'Grains'];
+            } else {
+                subCategories = ['All', 'Hot Meals', 'Fast Food', 'Fresh Produce', 'Dairy & Eggs', 'Bakery'];
+            }
+
+            // Render Pills HTML
+            pillsContainer.innerHTML = subCategories.map(sub => `
+                <button onclick="filterSubCategory('${sub}')" 
+                    class="px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition ${currentSubCategory === sub ? 'bg-slate-900 text-white shadow' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100'}">
+                    ${sub}
+                </button>
+            `).join('');
+
+            // Filter products array
+            let filtered = products;
+            if (currentFilter !== 'all') {
+                filtered = filtered.filter(p => p.category === currentFilter);
+            }
+            if (currentSubCategory !== 'All') {
+                filtered = filtered.filter(p => p.subCategory === currentSubCategory);
+            }
+
+            renderProductGrid(filtered);
+        }
+
+        function filterSubCategory(sub) {
+            currentSubCategory = sub;
+            renderProducts();
+        }
+
+        // Render Product Cards to Grid
+        function renderProductGrid(items) {
+            const grid = document.getElementById('product-grid');
+            const emptyState = document.getElementById('empty-state');
+
+            if (items.length === 0) {
+                grid.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            grid.innerHTML = items.map(product => `
+                <div class="bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col overflow-hidden group">
+                    <div class="relative h-48 overflow-hidden bg-slate-100">
+                        <img src="${product.image}" alt="${product.name}" 
+                             onerror="this.src='https://placehold.co/400x300/f1f5f9/475569?text=MealMart'"
+                             class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                        
+                        ${product.badge ? `
+                            <span class="absolute top-3 left-3 px-2.5 py-1 bg-slate-900/80 backdrop-blur text-white text-[10px] font-bold uppercase tracking-wider rounded-lg shadow">
+                                ${product.badge}
+                            </span>
+                        ` : ''}
+
+                        <span class="absolute top-3 right-3 px-2.5 py-1 ${product.category === 'cooked' ? 'bg-orange-500 text-white' : 'bg-brand-600 text-white'} text-[10px] font-bold uppercase tracking-wider rounded-lg shadow">
+                            ${product.category === 'cooked' ? 'Cooked' : 'Grocery'}
+                        </span>
+                    </div>
+
+                    <div class="p-5 flex-1 flex flex-col">
+                        <div class="flex items-center justify-between text-xs text-slate-400 mb-1.5 font-medium">
+                            <span>${product.subCategory}</span>
+                            <div class="flex items-center gap-1 text-amber-500 font-bold">
+                                <i class="fa-solid fa-star text-[11px]"></i>
+                                <span>${product.rating}</span>
+                                <span class="text-slate-300 font-normal">(${product.reviews})</span>
+                            </div>
+                        </div>
+
+                        <h3 class="font-bold text-slate-900 text-base mb-1 line-clamp-1 group-hover:text-brand-600 transition">${product.name}</h3>
+                        <p class="text-xs text-slate-500 line-clamp-2 mb-4 flex-1">${product.description}</p>
+
+                        <div class="flex items-center justify-between pt-3 border-t border-slate-100 mt-auto">
+                            <div>
+                                <span class="text-[10px] uppercase font-semibold text-slate-400 block">Price</span>
+                                <span class="text-lg font-black text-slate-900">$${product.price.toFixed(2)}</span>
+                            </div>
+                            <button onclick="addToCart(${product.id})" class="px-4 py-2.5 bg-brand-50 hover:bg-brand-600 text-brand-600 hover:text-white font-bold text-xs rounded-xl transition flex items-center gap-1.5 shadow-sm">
+                                <i class="fa-solid fa-plus"></i> Add
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Cart Actions
+        function addToCart(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+
+            const existingItem = cart.find(item => item.id === productId);
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cart.push({ ...product, quantity: 1 });
+            }
+
+            updateCartUI();
+            showToast(`Added ${product.name} to cart!`);
+        }
+
+        function updateQuantity(productId, delta) {
+            const item = cart.find(i => i.id === productId);
+            if (!item) return;
+
+            item.quantity += delta;
+            if (item.quantity <= 0) {
+                cart = cart.filter(i => i.id !== productId);
+            }
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            const badge = document.getElementById('cart-badge');
+            const itemCountLabel = document.getElementById('cart-item-count-label');
+            const cartItemsContainer = document.getElementById('cart-items-container');
+            const cartEmpty = document.getElementById('cart-empty');
+            const cartFooter = document.getElementById('cart-footer');
+            const subtotalEl = document.getElementById('cart-subtotal');
+            const totalEl = document.getElementById('cart-total');
+
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            badge.innerText = totalItems;
+            itemCountLabel.innerText = `${totalItems} items selected`;
+
+            if (cart.length === 0) {
+                cartEmpty.classList.remove('hidden');
+                cartItemsContainer.classList.add('hidden');
+                cartFooter.classList.add('hidden');
+                cartItemsContainer.innerHTML = '';
+                return;
+            }
+
+            cartEmpty.classList.add('hidden');
+            cartItemsContainer.classList.remove('hidden');
+            cartFooter.classList.remove('hidden');
+
+            cartItemsContainer.innerHTML = cart.map(item => `
+                <div class="flex items-center gap-4 py-3">
+                    <img src="${item.image}" alt="${item.name}" class="w-16 h-16 object-cover rounded-xl shrink-0 border border-slate-100">
+                    <div class="flex-1 min-w-0">
+                        <h4 class="font-bold text-sm text-slate-900 truncate">${item.name}</h4>
+                        <p class="text-xs text-brand-600 font-bold mt-0.5">$${item.price.toFixed(2)}</p>
+                        <div class="flex items-center gap-3 mt-2">
+                            <button onclick="updateQuantity(${item.id}, -1)" class="w-6 h-6 bg-slate-100 hover:bg-slate-200 rounded-lg flex items-center justify-center text-xs font-bold text-slate-700 transition">
+                                <i class="fa-solid fa-minus text-[10px]"></i>
+                            </button>
+                            <span class="text-xs font-bold text-slate-800">${item.quantity}</span>
+                            <button onclick="updateQuantity(${item.id}, 1)" class="w-6 h-6 bg-slate-100 hover:bg-slate-200 rounded-lg flex items-center justify-center text-xs font-bold text-slate-700 transition">
+                                <i class="fa-solid fa-plus text-[10px]"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-sm font-black text-slate-900">$${(item.price * item.quantity).toFixed(2)}</span>
+                    </div>
+                </div>
+            `).join('');
+
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            subtotalEl.innerText = `$${subtotal.toFixed(2)}`;
+            totalEl.innerText = `$${subtotal.toFixed(2)}`;
+        }
+
+        // Toggle Cart Drawer
+        function toggleCart() {
+            const drawer = document.getElementById('cart-drawer');
+            drawer.classList.toggle('hidden');
+        }
+
+        // Checkout Modal Actions
+        function openCheckoutModal() {
+            if (cart.length === 0) return;
+            toggleCart(); // Close cart drawer
+            document.getElementById('checkout-modal').classList.remove('hidden');
+        }
+
+        function closeCheckoutModal() {
+            document.getElementById('checkout-modal').classList.add('hidden');
+        }
+
+        function processOrder(e) {
+            e.preventDefault();
+            closeCheckoutModal();
+
+            // Generate random order id
+            const randomId = 'MM-' + Math.floor(1000 + Math.random() * 9000);
+            document.getElementById('order-id').innerText = randomId;
+
+            // Open success modal
+            document.getElementById('success-modal').classList.remove('hidden');
+
+            // Reset cart
+            cart = [];
+            updateCartUI();
+        }
+
+        function closeSuccessModal() {
+            document.getElementById('success-modal').classList.add('hidden');
+        }
+
+        // Toast Notification
+        function showToast(message) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = "bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-xl text-xs font-bold flex items-center gap-3 transform translate-y-2 opacity-0 transition-all duration-300 pointer-events-auto border border-slate-800";
+            toast.innerHTML = `<i class="fa-solid fa-circle-check text-brand-500 text-base"></i> ${message}`;
+            
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.add('translate-y-2', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function handleNewsletter(e) {
+            e.preventDefault();
+            showToast("Thank you for subscribing to MealMart!");
+            e.target.reset();
+        }
+
+        function toggleMobileMenu() {
+            showToast("Use search or filters above to explore categories!");
+        }
+    </script>
+    <script type="module" src="app.js"></script>
+
+</body>
+</html>

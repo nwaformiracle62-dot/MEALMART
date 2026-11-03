@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Create a MEALMART account to order Nigerian meals and fresh groceries.">
+    <title>Create account | MEALMART</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="min-h-screen bg-slate-50 text-slate-800">
+    <main class="min-h-screen grid lg:grid-cols-2">
+        <section class="hidden lg:flex flex-col justify-between bg-slate-900 p-12 text-white">
+            <a href="index.html" class="text-2xl font-black">Meal<span class="text-green-400">Mart</span></a>
+            <div class="max-w-lg">
+                <p class="mb-4 text-xs font-bold uppercase tracking-[.2em] text-green-300">GOOD FOOD, RIGHT ON TIME</p>
+                <h1 class="text-5xl font-black leading-tight">A better basket starts here.</h1>
+                <p class="mt-5 text-slate-300">Create an account to order freshly prepared Nigerian meals and everyday groceries.</p>
+            </div>
+            <p class="text-xs text-slate-400">MEALMART · Fresh meals & groceries</p>
+        </section>
+        <section class="flex items-center justify-center p-6">
+            <div class="w-full max-w-md rounded-3xl bg-white p-8 shadow-xl sm:p-10">
+                <a href="index.html" class="text-xl font-black text-slate-900">Meal<span class="text-green-600">Mart</span></a>
+                <p class="mt-8 text-xs font-bold uppercase tracking-[.18em] text-green-700">JOIN MEALMART</p>
+                <h1 class="mt-2 text-3xl font-black text-slate-900">Create your account</h1>
+                <p class="mt-2 text-sm text-slate-500">A few details and you’re ready to order.</p>
+                <form id="auth-form" data-mode="signup" class="mt-7 space-y-4" novalidate>
+                    <label class="block text-sm font-semibold" for="display-name">Full name</label>
+                    <input id="display-name" name="displayName" autocomplete="name" required minlength="2" maxlength="80"
+                        class="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-green-600 focus:ring-4 focus:ring-green-100">
+                    <label class="block text-sm font-semibold" for="email">Email address</label>
+                    <input id="email" name="email" type="email" autocomplete="email" required maxlength="254"
+                        class="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-green-600 focus:ring-4 focus:ring-green-100">
+                    <label class="block text-sm font-semibold" for="password">Password</label>
+                    <input id="password" name="password" type="password" autocomplete="new-password" required minlength="8"
+                        class="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-green-600 focus:ring-4 focus:ring-green-100">
+                    <p class="text-xs text-slate-500">Use at least 8 characters.</p>
+                    <button id="submit-button" type="submit" class="w-full rounded-xl bg-green-700 px-4 py-3.5 text-sm font-bold text-white hover:bg-green-800 disabled:opacity-60">Create account</button>
+                    <p id="auth-message" role="status" aria-live="polite" class="min-h-5 text-sm text-red-700"></p>
+                </form>
+                <p class="mt-5 text-center text-sm text-slate-600">Already have an account? <a href="login.html" class="font-bold text-green-700 hover:underline">Sign in</a></p>
+            </div>
+        </section>
+    </main>
+    <script type="module" src="auth.js"></script>
+</body>
+</html>

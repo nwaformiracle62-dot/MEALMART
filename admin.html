@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="MEALMART product administration.">
+    <title>Product Admin | MEALMART</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="min-h-screen bg-slate-50 text-slate-800">
+    <header class="border-b border-slate-200 bg-white">
+        <div class="mx-auto flex max-w-6xl items-center justify-between px-5 py-4">
+            <a href="index.html" class="text-xl font-black text-slate-900">Meal<span class="text-green-600">Mart</span> <span class="text-sm font-semibold text-slate-500">Admin</span></a>
+            <div class="flex items-center gap-4 text-sm">
+                <span id="admin-identity" class="max-w-48 truncate text-slate-500"></span>
+                <button id="admin-sign-out" type="button" class="font-semibold text-green-700 hover:text-green-900">Sign out</button>
+            </div>
+        </div>
+    </header>
+    <main class="mx-auto max-w-6xl px-5 py-10">
+        <section id="admin-access-message" class="rounded-2xl border border-slate-200 bg-white p-8 text-sm text-slate-600" role="status" aria-live="polite">
+            Checking administrator access…
+        </section>
+        <div id="admin-content" class="hidden">
+            <div class="mb-8">
+                <p class="text-xs font-bold uppercase tracking-[.18em] text-green-700">STORE MANAGEMENT</p>
+                <h1 class="mt-2 text-3xl font-black text-slate-900">Admin dashboard</h1>
+                <p class="mt-2 text-sm text-slate-500">Manage products, customers, and food orders.</p>
+            </div>
+            <div class="mb-6 flex flex-wrap gap-2 border-b border-slate-200 pb-4" role="tablist" aria-label="Admin sections">
+                <button id="tab-products" type="button" role="tab" aria-selected="true" aria-controls="panel-products" data-admin-tab="products" class="rounded-xl bg-green-700 px-4 py-2.5 text-sm font-bold text-white">Products</button>
+                <button id="tab-users" type="button" role="tab" aria-selected="false" aria-controls="panel-users" data-admin-tab="users" class="rounded-xl bg-white px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-100">New users</button>
+                <button id="tab-orders" type="button" role="tab" aria-selected="false" aria-controls="panel-orders" data-admin-tab="orders" class="rounded-xl bg-white px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-100">Food orders &amp; delivery</button>
+            </div>
+            <section id="panel-products" role="tabpanel" aria-labelledby="tab-products" data-admin-panel="products">
+            <div class="grid gap-8 lg:grid-cols-[minmax(0,420px)_1fr]">
+                <form id="product-form" class="h-fit space-y-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                    <h2 class="text-lg font-black">Upload a product</h2>
+                    <label class="block text-xs font-bold uppercase tracking-wide text-slate-600" for="product-name">Product name</label>
+                    <input id="product-name" name="name" required minlength="2" maxlength="100" class="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-green-600 focus:outline-none">
+                    <label class="block text-xs font-bold uppercase tracking-wide text-slate-600" for="product-description">Description</label>
+                    <textarea id="product-description" name="description" required minlength="5" maxlength="500" rows="3" class="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-green-600 focus:outline-none"></textarea>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="mb-2 block text-xs font-bold uppercase tracking-wide text-slate-600" for="product-price">Price (₦)</label>
+                            <input id="product-price" name="price" type="number" min="1" max="100000000" step="1" required class="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-green-600 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="mb-2 block text-xs font-bold uppercase tracking-wide text-slate-600" for="product-category">Category</label>
+                            <select id="product-category" name="category" required class="w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm focus:border-green-600 focus:outline-none">
+                                <option value="cooked">Cooked meal</option>
+                                <option value="grocery">Grocery</option>
+                            </select>
+                        </div>
+                    </div>
+                    <label class="block text-xs font-bold uppercase tracking-wide text-slate-600" for="product-subcategory">Subcategory</label>
+                    <input id="product-subcategory" name="subCategory" required minlength="2" maxlength="40" placeholder="e.g. Rice dishes, Fresh produce" class="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-green-600 focus:outline-none">
+                    <label class="block text-xs font-bold uppercase tracking-wide text-slate-600" for="product-badge">Badge <span class="font-normal normal-case">(optional)</span></label>
+                    <input id="product-badge" name="badge" maxlength="30" placeholder="e.g. Bestseller" class="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-green-600 focus:outline-none">
+                    <label class="block text-xs font-bold uppercase tracking-wide text-slate-600" for="product-image">Product photo</label>
+                    <input id="product-image" name="image" type="file" accept="image/jpeg,image/png,image/webp" required class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-green-50 file:px-3 file:py-2 file:font-semibold file:text-green-800">
+                    <p class="text-xs text-slate-500">JPG, PNG or WebP; maximum 5 MB. Images are hosted on Cloudinary.</p>
+                    <button id="upload-button" type="submit" class="w-full rounded-xl bg-green-700 px-4 py-3 font-bold text-white hover:bg-green-800 disabled:cursor-wait disabled:opacity-60">Upload product</button>
+                    <p id="admin-status" role="status" aria-live="polite" class="min-h-5 text-sm text-slate-600"></p>
+                </form>
+
+                <section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                    <div class="mb-5 flex items-center justify-between gap-3">
+                        <h2 class="text-lg font-black">Current catalog</h2>
+                        <button id="refresh-products" type="button" class="rounded-lg border border-slate-200 px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50">Refresh</button>
+                    </div>
+                    <p id="product-list-status" class="mb-4 text-sm text-slate-500" role="status" aria-live="polite"></p>
+                    <div id="admin-product-list" class="divide-y divide-slate-100"></div>
+                </section>
+            </div>
+            </section>
+            <section id="panel-users" role="tabpanel" aria-labelledby="tab-users" data-admin-panel="users" class="hidden rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                <div class="mb-5 flex items-center justify-between gap-3">
+                    <div>
+                        <h2 class="text-lg font-black">Customer accounts</h2>
+                        <p class="mt-1 text-sm text-slate-500">Newly registered accounts and the contact details they have provided.</p>
+                    </div>
+                    <button id="refresh-users" type="button" class="rounded-lg border border-slate-200 px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50">Refresh</button>
+                </div>
+                <p id="user-list-status" class="mb-4 text-sm text-slate-500" role="status" aria-live="polite"></p>
+                <div id="admin-user-list" class="divide-y divide-slate-100"></div>
+            </section>
+            <section id="panel-orders" role="tabpanel" aria-labelledby="tab-orders" data-admin-panel="orders" class="hidden rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                <div class="mb-5 flex items-center justify-between gap-3">
+                    <div>
+                        <h2 class="text-lg font-black">Food orders &amp; delivery</h2>
+                        <p class="mt-1 text-sm text-slate-500">Review customer orders and update their delivery status.</p>
+                    </div>
+                    <button id="refresh-orders" type="button" class="rounded-lg border border-slate-200 px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50">Refresh</button>
+                </div>
+                <p id="order-list-status" class="mb-4 text-sm text-slate-500" role="status" aria-live="polite"></p>
+                <div id="admin-order-list" class="divide-y divide-slate-100"></div>
+            </section>
+        </div>
+    </main>
+    <script type="module" src="admin.js"></script>
+</body>
+</html>
