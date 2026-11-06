@@ -161,7 +161,13 @@ async function loadAdminUsers() {
         userListStatus.textContent = `${users.length} customer account${users.length === 1 ? "" : "s"}`;
     } catch (error) {
         console.error("Could not load customer accounts:", error);
-        userListStatus.textContent = "Could not load customer accounts. Check your connection and admin access.";
+        if (error.code === "permission-denied") {
+            userListStatus.textContent = "Firestore is blocking access to customer accounts. Run `firebase deploy --only firestore:rules --project eliana-fb7da`, then refresh.";
+        } else if (error.code === "unauthenticated") {
+            userListStatus.textContent = "Your admin session has expired. Sign in again, then refresh.";
+        } else {
+            userListStatus.textContent = "Could not load customer accounts. Check your connection and try again.";
+        }
     }
 }
 

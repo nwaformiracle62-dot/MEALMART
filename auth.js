@@ -20,30 +20,45 @@ const mode = form.dataset.mode;
 const params = new URLSearchParams(window.location.search);
 let authFlowInProgress = false;
 
-function destination() {
-    if (mode === "signup") {
-        if (params.get("next") === "checkout") {
-            return "index.html?checkout=1";
-        }
-        return "admin.html";
-    }
-
-    return params.get("next") === "checkout"
+async function destination(user) {
+    const customerDestination = params.get("next") === "checkout"
         ? "index.html?checkout=1"
-        : params.get("next") === "admin"
-            ? "admin.html"
+        : params.get("next") === "cart" && params.get("product")
+            ? `index.html?addToCart=${encodeURIComponent(params.get("product"))}`
             : "index.html";
+
+    try {
+        const adminSnapshot = await getDoc(doc(db, "admins", user.uid));
+        if (adminSnapshot.exists() && adminSnapshot.data().enabled === true) {
+            return "admin.html";
+        }
+        return customerDestination;
+    } catch (error) {
+        console.error("Could not verify admin access after authentication:", error);
+        return customerDestination;
+    }
 }
 
 const createAccountLink = document.getElementById("create-account-link");
-if (createAccountLink && params.get("next") === "checkout") {
-    createAccountLink.href = "signup.html?next=checkout";
+const authSwitchLink = document.getElementById("auth-switch-link") || createAccountLink;
+if (authSwitchLink) {
+    const linkParams = new URLSearchParams();
+    for (const key of ["next", "product"]) {
+        const value = params.get(key);
+        if (value) {
+            linkParams.set(key, value);
+        }
+    }
+    const linkQuery = linkParams.toString();
+    authSwitchLink.href = `${mode === "signup" ? "login.html" : "signup.html"}${
+        linkQuery ? `?${linkQuery}` : ""
+    }`;
 }
 
 function readableAuthError(error) {
     switch (error.code) {
         case "auth/email-already-in-use":
-            return "An account already uses this email. Sign in instead.";
+            return "An account already uses this email. Sign in using the link below.";
         case "auth/invalid-email":
             return "Enter a valid email address.";
         case "auth/invalid-credential":
@@ -81,9 +96,9 @@ async function ensureUserProfile(user, displayName) {
     });
 }
 
-onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth, async (user) => {
     if (user && !authFlowInProgress) {
-        window.location.replace(destination());
+        window.location.replace(await destination(user));
     }
 });
 
@@ -119,7 +134,7 @@ form.addEventListener("submit", async (event) => {
             const credential = await signInWithEmailAndPassword(auth, email, password);
             await ensureUserProfile(credential.user);
         }
-        window.location.replace(destination());
+        window.location.replace(await destination(auth.currentUser));
     } catch (error) {
         console.error("Authentication failed:", error);
         message.textContent = readableAuthError(error);

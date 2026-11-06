@@ -22,6 +22,9 @@ let checkoutInProgress = false;
 let currentUser = null;
 let isAdmin = false;
 let storedCart = [];
+let productsLoaded = false;
+let authReady = false;
+let queuedProductId = null;
 
 const productGrid = document.getElementById("product-grid");
 const catalogStatus = document.getElementById("catalog-status");
@@ -237,6 +240,17 @@ function updateCartUI() {
 }
 
 function addToCart(productId) {
+    if (!authReady) {
+        queuedProductId = productId;
+        return;
+    }
+
+    if (!currentUser) {
+        const params = new URLSearchParams({ next: "cart", product: productId });
+        window.location.href = `signup.html?${params}`;
+        return;
+    }
+
     const product = products.find((item) => item.id === productId);
     if (!product) {
         showToast("That product is no longer available.", "error");
@@ -454,6 +468,7 @@ async function loadProducts() {
         }
 
         products.sort((a, b) => a.name.localeCompare(b.name));
+        productsLoaded = true;
         syncCartProducts();
         catalogStatus.textContent = products.length
             ? `${products.length} fresh products available · Prices in Nigerian naira`
@@ -461,6 +476,7 @@ async function loadProducts() {
         renderProducts();
         updateCartUI();
         maybeResumeCheckout();
+        maybeResumePendingAddToCart();
     } catch (error) {
         console.error("Could not load products from Firebase:", error);
         catalogStatus.textContent = "The menu could not be loaded. Please try again later.";
@@ -479,8 +495,22 @@ function maybeResumeCheckout() {
     }
 }
 
+function maybeResumePendingAddToCart() {
+    const params = new URLSearchParams(window.location.search);
+    const productId = params.get("addToCart");
+    if (!productId || !currentUser || !productsLoaded) {
+        return;
+    }
+
+    addToCart(productId);
+    params.delete("addToCart");
+    const query = params.toString();
+    window.history.replaceState({}, "", `${window.location.pathname}${query ? `?${query}` : ""}`);
+}
+
 onAuthStateChanged(auth, async (user) => {
     currentUser = user;
+    authReady = true;
     isAdmin = false;
     const accountLinks = document.getElementById("account-links");
     const accountMenu = document.getElementById("account-menu");
@@ -488,6 +518,12 @@ onAuthStateChanged(auth, async (user) => {
     accountMenu.classList.toggle("hidden", !user);
     accountMenu.classList.toggle("flex", Boolean(user));
     document.getElementById("account-name").textContent = user?.displayName || user?.email || "";
+
+    if (queuedProductId) {
+        const productId = queuedProductId;
+        queuedProductId = null;
+        addToCart(productId);
+    }
 
     if (user) {
         try {
@@ -500,6 +536,7 @@ onAuthStateChanged(auth, async (user) => {
     }
     document.getElementById("admin-link").classList.toggle("hidden", !isAdmin);
     maybeResumeCheckout();
+    maybeResumePendingAddToCart();
 });
 
 function initialize() {

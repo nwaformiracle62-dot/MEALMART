@@ -9,5 +9,9 @@
   },
   "engines": {
     "node": ">=18"
+  },
+  "dependencies": {
+    "pigment": "^0.4.5",
+    "zustand": "^5.0.16"
   }
 }

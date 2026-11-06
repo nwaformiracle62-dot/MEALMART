@@ -25,8 +25,9 @@ browser never chooses the order total.
    Cloud Functions deployment requires a Firebase project on the Blaze billing plan.
    To deploy only Firestore rules after changing `firestore.rules`, run
    `firebase deploy --only firestore:rules --project eliana-fb7da`.
-5. Create an account at `/signup.html`. Direct signups are redirected to `/admin.html`;
-   checkout signups return to checkout. In Firebase Authentication, copy the account's
+5. Create an account at `/signup.html`. New customers are redirected to the storefront;
+   checkout signups return to checkout, and accounts with the enabled admin role are
+   redirected to `/admin.html` after sign-in. In Firebase Authentication, copy the account's
    UID. In Firestore, create the
    document `admins/{UID}` with the field `enabled` set to the boolean `true`. Admin
    documents cannot be created or changed from the website; only a project owner
@@ -38,6 +39,11 @@ The admin dashboard includes customer-account and food-order/delivery tabs. New
 customer signups are saved to the Firestore `users` collection; admins can view those
 profiles and update order statuses. Customers who start checkout while signed out
 can create an account or sign in first, then return to the saved basket and checkout.
+Storefront browsing is public, but adding products to the cart requires signing in;
+new customers are sent to registration, and returning customers can switch to sign-in.
+If the customer list reports a Firestore permission error, deploy the current rules
+with `firebase deploy --only firestore:rules --project eliana-fb7da`, then refresh
+the admin dashboard.
 
 The Firestore rules in this repository keep product writes admin-only, prevent
 browser-side order writes, and let customers read only
